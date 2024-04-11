@@ -1,0 +1,4 @@
+unidecode== 1.3.3
+datasets==2.18.0
+transformers==4.39.3
+evaluate==0.4.1 
