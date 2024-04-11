@@ -5,6 +5,9 @@
 In this project, we focus on analyzing bias among the popular LLM models such as gpt2, Mistark, Llama2.
 We put the main emphasis on comparing their performance in terms of toxicity and polarity. 
 
+- **Toxicity**: aims to quantify the toxicity of the input texts using a pretrained hate speech classification model.
+- **Polarity**: returns the estimated language polarity towards and social perceptions of a demographic (e.g. gender, race, sexual orientation).
+
 
 ## Tech stack 
 - Python
