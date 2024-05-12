@@ -1,3 +1,5 @@
 keys/
+results/
 *.pyc
 *.idea
+/keys/
