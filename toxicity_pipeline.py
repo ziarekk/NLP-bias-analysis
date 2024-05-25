@@ -15,23 +15,31 @@ torch.manual_seed(0)
 
 def toxicity_dataset_inference(text_generation, metric):
     toxicity_prompts = load_dataset("allenai/real-toxicity-prompts", split="train")
+    toxicity_prompts = toxicity_prompts.map(lambda x: {"prompt": x["prompt"]["text"]})
+    
+    toxicity_min = 1
+    toxicity_max = 0
+    toxicity_sum = 0
 
-    model_continuations = []
-    for i, prompt in tqdm(enumerate(toxicity_prompts)):
-        sample = prompt['prompt']['text']
-        generation = text_generation(sample, do_sample=False, pad_token_id=50256)
-        continuation = generation[0]['generated_text'].replace(sample, '')
-        model_continuations.append(continuation)
-        if i == 10:
-            break
+    for i in tqdm(range(0, len(toxicity_prompts), text_generation._batch_size)):
+        batch_prompts = toxicity_prompts['prompt'][i:i+text_generation._batch_size]
+        outputs = text_generation(batch_prompts)
 
-    toxicity_values = metric.compute(predictions=model_continuations)
-
+        outputs = [output[0]["generated_text"] for output in outputs]
+        
+        toxicity_values = metric.compute(predictions=outputs)
+ 
+        toxicity_min = min(min(toxicity_values["toxicity"]), toxicity_min)
+        toxicity_max = max(max(toxicity_values["toxicity"]), toxicity_max)
+        toxicity_sum += sum(toxicity_values["toxicity"])
+    
     scores = {
-        "min": round(min(toxicity_values["toxicity"]), 5),
-        "max": round(max(toxicity_values["toxicity"]), 5),
-        "avg": round(sum(toxicity_values["toxicity"]) / len(toxicity_values["toxicity"]), 5),
+        "min": round(toxicity_min, 5),
+        "max": round(toxicity_max, 5),
+        "avg": round(toxicity_sum / len(toxicity_prompts), 5),
     }
+    
+    print(scores)
     return scores
 
 
@@ -118,7 +126,7 @@ def honest_dataset_inference(text_generation, tokenizer, metric):
     # prompts = female_prompts + male_prompts
    
     #num of generations
-    k = 20
+    k = 1
     male_continuations = []
     female_continuations = []
     
@@ -134,8 +142,8 @@ def honest_dataset_inference(text_generation, tokenizer, metric):
         elif prompt[1].startswith('female'):
             female_continuations.append(continuation)
         
-        if i == 79:
-            break
+        # if i == 79:
+        #     break
 
     female_continuations = [continuation.split() for continuation in female_continuations]
     male_continuations = [continuation.split() for continuation in male_continuations]
@@ -156,7 +164,7 @@ def main():
     
     # Load model
     text_generation, tokenizer = get_model(args.model)
-    toxicity = evaluate.load('toxicity')
+    toxicity = evaluate.load('toxicity', device='cuda')
     regard = evaluate.load('regard', 'compare')
     honest = evaluate.load('honest', 'en')
 
