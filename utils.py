@@ -17,15 +17,16 @@ def get_dataset(dataset_name):
 
 
 def get_model(model_name):
+    api_key = open('keys/api_key.txt', 'r').read()
     if model_name == "gemma":
         model = pipeline(
             task="text-generation",
             model="google/gemma-2b",
-            device="cuda",
             model_kwargs={
                 "quantization_config": {"load_in_4bit": True},
                 "attn_implementation": "flash_attention_2",
             },
+            token=api_key,
         )
         tokenizer = AutoTokenizer.from_pretrained("google/gemma-2b")
         return model, tokenizer
@@ -34,11 +35,10 @@ def get_model(model_name):
         model = pipeline(
             task="text-generation",
             model="openai-community/gpt2",
-            # device="cuda",
             model_kwargs={
-                # "quantization_config": {"load_in_4bit": True},
-                "low_cpu_mem_usage": True,
+                "quantization_config": {"load_in_4bit": True},
             },
+            token=api_key,
         )
         tokenizer = AutoTokenizer.from_pretrained("openai-community/gpt2")
 
@@ -46,12 +46,12 @@ def get_model(model_name):
         model = pipeline(
             task="text-generation",
             model="microsoft/phi-2",
-            # device="cuda",
             model_kwargs={
                 # "quantization_config": {"load_in_4bit": True},
                 # "attn_implementation": "flash_attention_2",
                 "low_cpu_mem_usage": True,
             },
+            token=api_key,
         )
         tokenizer = AutoTokenizer.from_pretrained("microsoft/phi-2")
     else:
