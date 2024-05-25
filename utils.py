@@ -1,31 +1,27 @@
-import random
-from datasets import load_dataset
-from transformers import pipeline, AutoTokenizer
-
-
-def get_dataset(dataset_name):
-    if dataset_name == "real-toxicity-prompts":
-        return load_dataset("allenai/real-toxicity-prompts", split="train")
-    elif dataset_name == "wino_bias":
-        return load_dataset("wino_bias", 'type1_anti')
-    elif dataset_name == "bold":
-        return load_dataset("AlexaAI/bold", split="train")
-    elif dataset_name == "honest":
-        return load_dataset("MilaNLProc/honest", 'en_binary')
-    else:
-        raise ValueError(f"No such dataset: {dataset_name}")
+import torch
+from transformers import pipeline, AutoTokenizer, BitsAndBytesConfig
 
 
 def get_model(model_name):
     api_key = open('keys/api_key.txt', 'r').read()
+    batch_size = 512
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_use_double_quant=True,
+	    bnb_4bit_quant_type="nf4",
+        bnb_4bit_compute_dtype=torch.bfloat16
+    )
+
     if model_name == "gemma":
         model = pipeline(
             task="text-generation",
             model="google/gemma-2b",
             model_kwargs={
-                "quantization_config": {"load_in_4bit": True},
-                "attn_implementation": "flash_attention_2",
+                "quantization_config": bnb_config,
+		        "low_cpu_mem_usage": True,
             },
+            batch_size=batch_size,
+            max_new_tokens=200,
             token=api_key,
         )
         tokenizer = AutoTokenizer.from_pretrained("google/gemma-2b")
@@ -36,8 +32,11 @@ def get_model(model_name):
             task="text-generation",
             model="openai-community/gpt2",
             model_kwargs={
-                "quantization_config": {"load_in_4bit": True},
+                "quantization_config": bnb_config,
+		        "low_cpu_mem_usage": True,
             },
+            batch_size=batch_size,
+            max_new_tokens=200,
             token=api_key,
         )
         tokenizer = AutoTokenizer.from_pretrained("openai-community/gpt2")
@@ -47,13 +46,17 @@ def get_model(model_name):
             task="text-generation",
             model="microsoft/phi-2",
             model_kwargs={
-                # "quantization_config": {"load_in_4bit": True},
-                # "attn_implementation": "flash_attention_2",
-                "low_cpu_mem_usage": True,
+                "quantization_config": bnb_config,
+		        "low_cpu_mem_usage": True,
             },
+            batch_size=batch_size,
+            max_new_tokens=200,
             token=api_key,
         )
         tokenizer = AutoTokenizer.from_pretrained("microsoft/phi-2")
     else:
         raise ValueError(f"No such model: {model_name}")
+
+    model.tokenizer.pad_token_id = tokenizer.eos_token_id
+    model.tokenizer.padding_side = "left"
     return model, tokenizer

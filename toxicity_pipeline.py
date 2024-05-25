@@ -13,15 +13,17 @@ np.random.seed(0)
 torch.manual_seed(0)
 
 
-def toxicity_dataset_inference(text_generation, metric):
+def toxicity_dataset_inference(text_generation):
     toxicity_prompts = load_dataset("allenai/real-toxicity-prompts", split="train")
     toxicity_prompts = toxicity_prompts.map(lambda x: {"prompt": x["prompt"]["text"]})
+    metric = evaluate.load('toxicity', device='cuda')
     
-    toxicity_min = 1
-    toxicity_max = 0
-    toxicity_sum = 0
+    toxicity_min = 1.
+    toxicity_max = 0.
+    toxicity_sum = 0.
+    num_samples = 19968  # len(toxicity_prompts)
 
-    for i in tqdm(range(0, len(toxicity_prompts), text_generation._batch_size)):
+    for i in tqdm(range(0, num_samples, text_generation._batch_size)):
         batch_prompts = toxicity_prompts['prompt'][i:i+text_generation._batch_size]
         outputs = text_generation(batch_prompts)
 
@@ -36,15 +38,14 @@ def toxicity_dataset_inference(text_generation, metric):
     scores = {
         "min": round(toxicity_min, 5),
         "max": round(toxicity_max, 5),
-        "avg": round(toxicity_sum / len(toxicity_prompts), 5),
+        "avg": round(toxicity_sum / num_samples, 5),
     }
-    
-    print(scores)
     return scores
 
 
-def wino_bias_dataset_inference(text_generation, metric):
+def wino_bias_dataset_inference(text_generation):
     wino_bias = load_dataset("wino_bias", 'type1_anti')["test"]
+    metric = evaluate.load('toxicity', device='cuda')
 
     female_continuations = []
     male_continuations = []
@@ -77,8 +78,9 @@ def wino_bias_dataset_inference(text_generation, metric):
     return scores
 
 
-def bold_dataset_inference(text_generation, metric):
+def bold_dataset_inference(text_generation):
     bold_dataset = load_dataset("AlexaAI/bold", split="train")
+    metric = evaluate.load('regard', 'compare')
     
     # on the entier dataset
     filtered_prompts = bold_dataset.filter(lambda subset: subset['domain'] == 'gender')
@@ -113,9 +115,9 @@ def bold_dataset_inference(text_generation, metric):
     return scores
     
 
-def honest_dataset_inference(text_generation, tokenizer, metric):
+def honest_dataset_inference(text_generation, tokenizer):
     honest_dataset = load_dataset("MilaNLProc/honest", 'en_binary', split='honest')
-    
+    metric = evaluate.load('honest', 'en')
     
     # on the entier dataset
     prompts = [(h['template_masked'].replace(' [M].',''), h['category']) for h in honest_dataset]
@@ -164,22 +166,19 @@ def main():
     
     # Load model
     text_generation, tokenizer = get_model(args.model)
-    toxicity = evaluate.load('toxicity', device='cuda')
-    regard = evaluate.load('regard', 'compare')
-    honest = evaluate.load('honest', 'en')
 
     # Inference
     if args.dataset == "toxicity":
-        scores = toxicity_dataset_inference(text_generation, toxicity)
+        scores = toxicity_dataset_inference(text_generation)
         metric = "toxicity"
     elif args.dataset == "wino_bias":
-        scores = wino_bias_dataset_inference(text_generation, toxicity)
+        scores = wino_bias_dataset_inference(text_generation)
         metric = "toxicity"
     elif args.dataset == "bold":
-        scores = bold_dataset_inference(text_generation, regard)
+        scores = bold_dataset_inference(text_generation)
         metric = "regard"
     elif args.dataset == "honest":
-        scores = honest_dataset_inference(text_generation, tokenizer, honest)
+        scores = honest_dataset_inference(text_generation, tokenizer)
         metric = "honest"
 
 

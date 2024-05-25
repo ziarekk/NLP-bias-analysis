@@ -9,4 +9,4 @@ set -e
 eval "$(conda shell.bash hook)"
 conda activate nlp
 
-python3 toxicity_pipeline.py --model "gpt2" --dataset "toxicity"
+python3 toxicity_pipeline.py --model "gemma" --dataset "toxicity"

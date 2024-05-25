@@ -1,3 +1,68 @@
+`config.hidden_act` is ignored, you should use `config.hidden_activation` instead.
+Gemma's activation function will be set to `gelu_pytorch_tanh`. Please, use
+`config.hidden_activation` if you want to override this behaviour.
+See https://github.com/huggingface/transformers/pull/29402 for more details.
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:16<00:16, 16.37s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:16<00:00,  6.81s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:16<00:00,  8.24s/it]
 Using default facebook/roberta-hate-speech-dynabench-r4-target checkpoint
-0it [00:00, ?it/s]1it [00:01,  1.18s/it]2it [00:01,  1.22it/s]3it [00:02,  1.38it/s]4it [00:03,  1.44it/s]5it [00:03,  1.55it/s]6it [00:04,  1.70it/s]7it [00:04,  1.99it/s]8it [00:04,  1.89it/s]9it [00:05,  1.83it/s]10it [00:06,  1.75it/s]You seem to be using the pipelines sequentially on GPU. In order to maximize efficiency please use a dataset
-11it [00:06,  1.85it/s]12it [00:07,  1.74it/s]13it [00:07,  1.79it/s]14it [00:08,  1.79it/s]15it [00:09,  1.69it/s]16it [00:09,  1.68it/s]17it [00:10,  1.63it/s]18it [00:10,  1.69it/s]19it [00:11,  1.64it/s]20it [00:11,  1.74it/s]21it [00:12,  1.71it/s]22it [00:13,  1.61it/s]23it [00:13,  1.57it/s]24it [00:14,  1.59it/s]25it [00:15,  1.55it/s]26it [00:15,  1.64it/s]27it [00:16,  1.76it/s]28it [00:16,  1.83it/s]29it [00:17,  1.76it/s]30it [00:18,  1.71it/s]31it [00:18,  1.68it/s]32it [00:19,  1.71it/s]33it [00:19,  1.68it/s]34it [00:20,  1.60it/s]35it [00:21,  1.66it/s]36it [00:21,  1.71it/s]37it [00:21,  1.91it/s]38it [00:22,  1.94it/s]39it [00:23,  1.77it/s]40it [00:23,  1.67it/s]41it [00:24,  1.76it/s]42it [00:24,  1.76it/s]43it [00:25,  1.71it/s]44it [00:26,  1.76it/s]45it [00:26,  1.75it/s]46it [00:27,  1.91it/s]47it [00:27,  1.78it/s]48it [00:28,  1.77it/s]49it [00:28,  2.10it/s]50it [00:29,  1.95it/s]51it [00:29,  1.88it/s]52it [00:30,  1.91it/s]53it [00:30,  1.76it/s]54it [00:31,  1.68it/s]55it [00:32,  1.61it/s]56it [00:32,  1.70it/s]57it [00:33,  1.79it/s]58it [00:33,  1.70it/s]59it [00:34,  1.62it/s]60it [00:35,  1.57it/s]61it [00:35,  1.56it/s]62it [00:36,  1.69it/s]63it [00:37,  1.64it/s]64it [00:37,  1.64it/s]65it [00:38,  1.62it/s]66it [00:38,  1.63it/s]67it [00:39,  1.65it/s]68it [00:40,  1.59it/s]69it [00:40,  1.65it/s]70it [00:41,  1.62it/s]71it [00:41,  1.77it/s]72it [00:42,  1.89it/s]73it [00:42,  1.83it/s]74it [00:43,  1.64it/s]75it [00:44,  1.63it/s]76it [00:44,  1.78it/s]77it [00:45,  1.67it/s]78it [00:46,  1.61it/s]79it [00:46,  1.81it/s]80it [00:46,  1.87it/s]81it [00:47,  1.69it/s]82it [00:48,  1.71it/s]83it [00:48,  1.92it/s]84it [00:49,  1.85it/s]85it [00:49,  1.85it/s]86it [00:50,  1.72it/s]87it [00:50,  1.82it/s]88it [00:51,  1.68it/s]89it [00:51,  1.85it/s]90it [00:52,  2.39it/s]91it [00:52,  2.00it/s]92it [00:53,  1.92it/s]93it [00:53,  2.09it/s]94it [00:54,  1.92it/s]95it [00:54,  1.81it/s]96it [00:55,  1.76it/s]97it [00:56,  1.80it/s]98it [00:56,  1.88it/s]99it [00:57,  1.89it/s]100it [00:57,  1.76it/s]101it [00:58,  1.77it/s]102it [00:58,  1.79it/s]103it [00:59,  1.68it/s]104it [01:00,  1.69it/s]105it [01:00,  1.64it/s]106it [01:01,  1.65it/s]107it [01:01,  1.69it/s]108it [01:02,  1.72it/s]109it [01:03,  1.73it/s]110it [01:03,  1.86it/s]111it [01:04,  1.84it/s]112it [01:04,  1.96it/s]113it [01:05,  1.84it/s]114it [01:05,  1.73it/s]115it [01:06,  1.90it/s]116it [01:06,  1.77it/s]117it [01:07,  1.79it/s]118it [01:08,  1.70it/s]119it [01:08,  1.73it/s]120it [01:09,  1.72it/s]121it [01:09,  1.68it/s]122it [01:10,  1.60it/s]123it [01:11,  1.56it/s]124it [01:11,  1.58it/s]125it [01:12,  1.54it/s]126it [01:13,  1.54it/s]127it [01:13,  1.52it/s]128it [01:14,  1.55it/s]129it [01:15,  1.55it/s]130it [01:15,  1.61it/s]131it [01:16,  1.68it/s]132it [01:16,  1.77it/s]slurmstepd: error: *** JOB 730041 ON t0022 CANCELLED AT 2024-05-25T11:37:40 ***
+  0%|          | 0/195 [00:00<?, ?it/s] 11%|█         | 11/98 [12:25<1:36:49, 66.77s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 12%|█▏        | 12/98 [13:39<1:38:45, 68.90s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 13%|█▎        | 13/98 [14:45<1:36:33, 68.16s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+  1%|          | 1/195 [03:05<9:59:13, 185.33s/it] 14%|█▍        | 14/98 [15:59<1:37:48, 69.87s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+slurmstepd: error: *** JOB 730258 ON t0023 CANCELLED AT 2024-05-25T19:53:03 ***
+ 15%|█▌        | 15/98 [17:12<1:38:08, 70.95s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 16%|█▋        | 16/98 [18:29<1:39:10, 72.57s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 17%|█▋        | 17/98 [19:46<1:39:44, 73.88s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 18%|█▊        | 18/98 [21:00<1:38:27, 73.85s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 19%|█▉        | 19/98 [22:09<1:35:20, 72.42s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 20%|██        | 20/98 [23:22<1:34:25, 72.64s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 21%|██▏       | 21/98 [24:20<1:27:51, 68.46s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 22%|██▏       | 22/98 [25:21<1:23:44, 66.12s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 23%|██▎       | 23/98 [26:30<1:23:33, 66.84s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 24%|██▍       | 24/98 [27:43<1:24:44, 68.71s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 26%|██▌       | 25/98 [28:44<1:20:59, 66.57s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 27%|██▋       | 26/98 [29:54<1:21:04, 67.56s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 28%|██▊       | 27/98 [31:05<1:21:01, 68.48s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 29%|██▊       | 28/98 [32:18<1:21:28, 69.84s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 30%|██▉       | 29/98 [33:30<1:21:05, 70.52s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 31%|███       | 30/98 [34:34<1:17:54, 68.74s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 32%|███▏      | 31/98 [35:50<1:18:56, 70.69s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 33%|███▎      | 32/98 [37:03<1:18:38, 71.49s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 34%|███▎      | 33/98 [38:15<1:17:40, 71.70s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 35%|███▍      | 34/98 [39:31<1:17:39, 72.80s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 36%|███▌      | 35/98 [40:42<1:15:58, 72.36s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 37%|███▋      | 36/98 [41:52<1:14:08, 71.76s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 38%|███▊      | 37/98 [42:55<1:10:18, 69.16s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 39%|███▉      | 38/98 [44:08<1:10:13, 70.22s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 40%|███▉      | 39/98 [45:11<1:07:00, 68.14s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 41%|████      | 40/98 [46:21<1:06:14, 68.53s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 42%|████▏     | 41/98 [47:24<1:03:26, 66.78s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 43%|████▎     | 42/98 [48:33<1:03:08, 67.66s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 44%|████▍     | 43/98 [49:44<1:02:49, 68.54s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 45%|████▍     | 44/98 [50:58<1:03:18, 70.34s/it]Setting `pad_token_id` to `eos_token_id`:50256 for open-end generation.
+ 45%|████▍     | 44/98 [50:59<1:02:34, 69.53s/it]
+Traceback (most recent call last):
+  File "/net/tscratch/people/plgwlapacz/projects/NLP-bias-analysis/toxicity_pipeline.py", line 197, in <module>
+    main()
+  File "/net/tscratch/people/plgwlapacz/projects/NLP-bias-analysis/toxicity_pipeline.py", line 171, in main
+    scores = toxicity_dataset_inference(text_generation)
+  File "/net/tscratch/people/plgwlapacz/projects/NLP-bias-analysis/toxicity_pipeline.py", line 27, in toxicity_dataset_inference
+    outputs = text_generation(batch_prompts)
+  File "/net/people/plgrid/plgwlapacz/.local/lib/python3.9/site-packages/transformers/pipelines/text_generation.py", line 263, in __call__
+    return super().__call__(text_inputs, **kwargs)
+  File "/net/people/plgrid/plgwlapacz/.local/lib/python3.9/site-packages/transformers/pipelines/base.py", line 1224, in __call__
+    outputs = list(final_iterator)
+  File "/net/people/plgrid/plgwlapacz/.local/lib/python3.9/site-packages/transformers/pipelines/pt_utils.py", line 124, in __next__
+    item = next(self.iterator)
+  File "/net/people/plgrid/plgwlapacz/.local/lib/python3.9/site-packages/transformers/pipelines/pt_utils.py", line 125, in __next__
+    processed = self.infer(item, **self.params)
+  File "/net/people/plgrid/plgwlapacz/.local/lib/python3.9/site-packages/transformers/pipelines/base.py", line 1150, in forward
+    model_outputs = self._forward(model_inputs, **forward_params)
+  File "/net/people/plgrid/plgwlapacz/.local/lib/python3.9/site-packages/transformers/pipelines/text_generation.py", line 350, in _forward
+    generated_sequence = self.model.generate(input_ids=input_ids, attention_mask=attention_mask, **generate_kwargs)
+  File "/net/people/plgrid/plgwlapacz/.local/lib/python3.9/site-packages/torch/utils/_contextlib.py", line 115, in decorate_context
+    return func(*args, **kwargs)
+  File "/net/people/plgrid/plgwlapacz/.local/lib/python3.9/site-packages/transformers/generation/utils.py", line 1626, in generate
+    self._validate_generated_length(generation_config, input_ids_length, has_default_max_length)
+  File "/net/people/plgrid/plgwlapacz/.local/lib/python3.9/site-packages/transformers/generation/utils.py", line 1176, in _validate_generated_length
+    raise ValueError(
+ValueError: Input length of input_ids is 62, but `max_length` is set to 50. This can lead to unexpected behavior. You should consider increasing `max_length` or, better yet, setting `max_new_tokens`.
