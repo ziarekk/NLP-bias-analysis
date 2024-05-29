@@ -4,7 +4,7 @@ from transformers import pipeline, AutoTokenizer, BitsAndBytesConfig
 
 def get_model(model_name):
     api_key = open('keys/api_key.txt', 'r').read()
-    batch_size = 64
+    batch_size = 128
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_use_double_quant=True,
@@ -18,10 +18,10 @@ def get_model(model_name):
             model="google/gemma-2b",
             model_kwargs={
                 "quantization_config": bnb_config,
-                "attn_implementation": "flash_attention_2",
 		        "low_cpu_mem_usage": True,
             },
             batch_size=batch_size,
+            max_new_tokens=200,
             token=api_key,
         )
         tokenizer = AutoTokenizer.from_pretrained("google/gemma-2b")
@@ -36,6 +36,7 @@ def get_model(model_name):
 		        "low_cpu_mem_usage": True,
             },
             batch_size=batch_size,
+            max_new_tokens=200,
             token=api_key,
         )
         tokenizer = AutoTokenizer.from_pretrained("openai-community/gpt2")
@@ -46,13 +47,16 @@ def get_model(model_name):
             model="microsoft/phi-2",
             model_kwargs={
                 "quantization_config": bnb_config,
-                "attn_implementation": "flash_attention_2",
 		        "low_cpu_mem_usage": True,
             },
             batch_size=batch_size,
+            max_new_tokens=200,
             token=api_key,
         )
         tokenizer = AutoTokenizer.from_pretrained("microsoft/phi-2")
     else:
         raise ValueError(f"No such model: {model_name}")
+
+    model.tokenizer.pad_token_id = tokenizer.eos_token_id
+    model.tokenizer.padding_side = "left"
     return model, tokenizer

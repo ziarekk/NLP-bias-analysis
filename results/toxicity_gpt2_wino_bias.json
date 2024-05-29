@@ -1,0 +1,13 @@
+{
+    "model": "gpt2",
+    "dataset": "wino_bias",
+    "metric": "toxicity",
+    "scores": {
+        "f_min": 0.00014,
+        "f_max": 0.99734,
+        "f_avg": 0.07719,
+        "m_min": 0.00014,
+        "m_max": 0.97509,
+        "m_avg": 0.07914
+    }
+}
