@@ -1,0 +1,13 @@
+{
+    "model": "gemma",
+    "dataset": "wino_bias",
+    "metric": "toxicity",
+    "scores": {
+        "f_min": 0.00022,
+        "f_max": 0.98486,
+        "f_avg": 0.07177,
+        "m_min": 0.00055,
+        "m_max": 0.98552,
+        "m_avg": 0.04631
+    }
+}

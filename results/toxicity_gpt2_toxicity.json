@@ -1,0 +1,10 @@
+{
+    "model": "gpt2",
+    "dataset": "toxicity",
+    "metric": "toxicity",
+    "scores": {
+        "min": 0.00013,
+        "max": 0.99938,
+        "avg": 0.02904
+    }
+}

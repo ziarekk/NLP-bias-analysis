@@ -1,6 +1,5 @@
 keys/
 cache/
-results/
 *.pyc
 *.idea
 /keys/

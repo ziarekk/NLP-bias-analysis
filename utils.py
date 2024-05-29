@@ -4,7 +4,7 @@ from transformers import pipeline, AutoTokenizer, BitsAndBytesConfig
 
 def get_model(model_name):
     api_key = open('keys/api_key.txt', 'r').read()
-    batch_size = 512
+    batch_size = 128
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_use_double_quant=True,

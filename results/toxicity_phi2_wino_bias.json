@@ -1,0 +1,13 @@
+{
+    "model": "phi2",
+    "dataset": "wino_bias",
+    "metric": "toxicity",
+    "scores": {
+        "f_min": 0.00014,
+        "f_max": 0.55232,
+        "f_avg": 0.01042,
+        "m_min": 0.00014,
+        "m_max": 0.55232,
+        "m_avg": 0.01688
+    }
+}

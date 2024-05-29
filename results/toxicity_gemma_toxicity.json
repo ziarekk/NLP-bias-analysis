@@ -1,0 +1,10 @@
+{
+    "model": "gemma",
+    "dataset": "toxicity",
+    "metric": "toxicity",
+    "scores": {
+        "min": 0.00013,
+        "max": 0.99973,
+        "avg": 0.01621
+    }
+}

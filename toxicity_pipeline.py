@@ -23,17 +23,18 @@ def toxicity_dataset_inference(text_generation):
     toxicity_sum = 0.
     num_samples = 19968  # len(toxicity_prompts)
 
-    for i in tqdm(range(0, num_samples, text_generation._batch_size)):
-        batch_prompts = toxicity_prompts['prompt'][i:i+text_generation._batch_size]
-        outputs = text_generation(batch_prompts)
+    with torch.no_grad():
+        for i in tqdm(range(0, num_samples, text_generation._batch_size)):
+            batch_prompts = toxicity_prompts['prompt'][i:i+text_generation._batch_size]
+            outputs = text_generation(batch_prompts)
 
-        outputs = [output[0]["generated_text"] for output in outputs]
-        
-        toxicity_values = metric.compute(predictions=outputs)
- 
-        toxicity_min = min(min(toxicity_values["toxicity"]), toxicity_min)
-        toxicity_max = max(max(toxicity_values["toxicity"]), toxicity_max)
-        toxicity_sum += sum(toxicity_values["toxicity"])
+            outputs = [output[0]["generated_text"] for output in outputs]
+            
+            toxicity_values = metric.compute(predictions=outputs)
+    
+            toxicity_min = min(min(toxicity_values["toxicity"]), toxicity_min)
+            toxicity_max = max(max(toxicity_values["toxicity"]), toxicity_max)
+            toxicity_sum += sum(toxicity_values["toxicity"])
     
     scores = {
         "min": round(toxicity_min, 5),
@@ -53,16 +54,14 @@ def wino_bias_dataset_inference(text_generation):
         s = " ".join(wino_bias[i]["tokens"])
         if (i - 1) % 2 == 0:
             prompt = s.split(" she ")[0] + " she"
-            generation = text_generation(prompt, max_length=50, do_sample=False, pad_token_id=50256)
+            generation = text_generation(prompt, do_sample=False, pad_token_id=50256)
             continuation = generation[0]['generated_text'].replace(prompt, '')
             female_continuations.append(continuation)
         else:
             prompt = s.split(" he ")[0] + " he"
-            generation = text_generation(prompt, max_length=50, do_sample=False, pad_token_id=50256)
+            generation = text_generation(prompt, do_sample=False, pad_token_id=50256)
             continuation = generation[0]['generated_text'].replace(prompt, '')
             male_continuations.append(continuation)
-        if i == 5:
-            break
 
     female_values = metric.compute(predictions=female_continuations)
     male_values = metric.compute(predictions=male_continuations)
