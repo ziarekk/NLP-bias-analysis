@@ -17,7 +17,7 @@ def toxicity_dataset_inference(text_generation):
     toxicity_prompts = load_dataset("allenai/real-toxicity-prompts", split="train")
     toxicity_prompts = toxicity_prompts.map(lambda x: {"prompt": x["prompt"]["text"]})
     metric = evaluate.load('toxicity', device='cuda')
-    
+
     toxicity_min = 1.
     toxicity_max = 0.
     toxicity_sum = 0.
@@ -79,39 +79,74 @@ def wino_bias_dataset_inference(text_generation):
 
 def bold_dataset_inference(text_generation):
     bold_dataset = load_dataset("AlexaAI/bold", split="train")
-    metric = evaluate.load('regard', 'compare')
-    
-    # on the entier dataset
-    filtered_prompts = bold_dataset.filter(lambda subset: subset['domain'] == 'gender')
-    
-    # on a sampled subeset with equal ratio of male and female prompts
-    # female_bold = (random.sample([p for p in bold_dataset if p['category'] == 'American_actresses'],4))
-    # male_bold = (random.sample([p for p in bold_dataset if p['category'] == 'American_actors'],4))
-    # filtered_prompts = female_bold + male_bold
-    
-    female_continuations = []
-    male_continuations = []
+    metric = evaluate.load('regard', device='cuda')
 
-    for i, prompt in tqdm(enumerate(filtered_prompts)):
-        sample = prompt['prompts'][0]
-        generation = text_generation(sample, max_length=50, do_sample=False, pad_token_id=50256)
-        continuation = generation[0]['generated_text'].replace(sample,'')
+    male_prompts = bold_dataset.filter(lambda subset: subset['domain'] == 'gender' and subset['category'] == 'American_actors')
+    female_prompts = bold_dataset.filter(lambda subset: subset['domain'] == 'gender' and subset['category'] == 'American_actresses' )
+
+    male_prompts = [item['prompts'][0] for item in male_prompts]
+    female_prompts = [item['prompts'][0] for item in female_prompts]
+
+    female_num_samples = len(female_prompts)
+    male_num_samples = len(male_prompts)
+
+    female_sum_positive = 0.
+    female_sum_other = 0.
+    female_sum_neutral = 0.
+    female_sum_negative = 0.
+
+    male_sum_positive = 0.
+    male_sum_other = 0.
+    male_sum_neutral = 0.
+    male_sum_negative = 0.
+
+    num_iterations_f = 0
+    num_iterations_m = 0
+
+    for i in tqdm(range(0, female_num_samples, text_generation._batch_size)):
+        batch_prompts = female_prompts[i:min(i+text_generation._batch_size, female_num_samples)]
+        outputs = text_generation(batch_prompts)
+
+        outputs = [output[0]["generated_text"] for output in outputs]
+        scores = metric.compute(data=outputs, aggregation='average')
+
+        female_sum_positive += scores['average_regard']['positive']
+        female_sum_other += scores['average_regard']['other']
+        female_sum_neutral += scores['average_regard']['neutral']
+        female_sum_negative += scores['average_regard']['negative']
         
-        if prompt['category'] == 'American_actresses':
-            female_continuations.append(continuation)
-        elif prompt['category'] == 'American_actors':
-            male_continuations.append(continuation)
+        num_iterations_f += 1
+       
+    for i in tqdm(range(0, male_num_samples, text_generation._batch_size)):
+        batch_prompts = male_prompts[i:min(i+text_generation._batch_size, male_num_samples)]
+        outputs = text_generation(batch_prompts)
+
+        outputs = [output[0]["generated_text"] for output in outputs]
+        scores = metric.compute(data=outputs, aggregation='average')
         
-        print(f'bold, e:{i}')    
-        if i == 7:
-            break
-        
-    scores = metric.compute(data = male_continuations, references= female_continuations, aggregation = 'average')
+        male_sum_positive += scores['average_regard']['positive']
+        male_sum_other += scores['average_regard']['other']
+        male_sum_neutral += scores['average_regard']['neutral']
+        male_sum_negative += scores['average_regard']['negative']
     
-    scores['male_scores'] = scores.pop('average_data_regard')
-    scores['female_scores'] = scores.pop('average_references_regard')
+        num_iterations_m += 1
+
+    final_scores = {
+        "male_average_scores":{
+            "positive": male_sum_positive / num_iterations_m,
+            "other": male_sum_other / num_iterations_m,
+            "neutral": male_sum_neutral / num_iterations_m,
+            "negative": male_sum_negative / num_iterations_m 
+        },
+        "female_average_scores":{
+            "positive": female_sum_positive / num_iterations_f,
+            "other": female_sum_other / num_iterations_f,
+            "neutral": female_sum_neutral / num_iterations_f,
+            "negative": female_sum_negative / num_iterations_f 
+        }
+    }
     
-    return scores
+    return final_scores
     
 
 def honest_dataset_inference(text_generation, tokenizer):
@@ -138,7 +173,7 @@ def honest_dataset_inference(text_generation, tokenizer):
         continuation = generation[0]['generated_text'].replace(sample,'')
         
         # check 'category'
-        if prompt[1].startswith('male'):    
+        if prompt[1].startswith('male'):
             male_continuations.append(continuation)
         elif prompt[1].startswith('female'):
             female_continuations.append(continuation)
