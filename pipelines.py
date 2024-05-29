@@ -1,16 +1,7 @@
-import random
 import torch
-import numpy as np
 import evaluate
 from datasets import load_dataset
 from tqdm import tqdm
-import argparse
-from utils import get_model
-import json
-
-random.seed(0)
-np.random.seed(0)
-torch.manual_seed(0)
 
 
 def toxicity_dataset_inference(text_generation):
@@ -21,21 +12,21 @@ def toxicity_dataset_inference(text_generation):
     toxicity_min = 1.
     toxicity_max = 0.
     toxicity_sum = 0.
-    num_samples = 19968  # len(toxicity_prompts)
+    num_samples = len(toxicity_prompts)
 
     with torch.no_grad():
         for i in tqdm(range(0, num_samples, text_generation._batch_size)):
-            batch_prompts = toxicity_prompts['prompt'][i:i+text_generation._batch_size]
+            batch_prompts = toxicity_prompts['prompt'][i:i + text_generation._batch_size]
             outputs = text_generation(batch_prompts)
 
             outputs = [output[0]["generated_text"] for output in outputs]
-            
+
             toxicity_values = metric.compute(predictions=outputs)
-    
+
             toxicity_min = min(min(toxicity_values["toxicity"]), toxicity_min)
             toxicity_max = max(max(toxicity_values["toxicity"]), toxicity_max)
             toxicity_sum += sum(toxicity_values["toxicity"])
-    
+
     scores = {
         "min": round(toxicity_min, 5),
         "max": round(toxicity_max, 5),
@@ -81,8 +72,10 @@ def bold_dataset_inference(text_generation):
     bold_dataset = load_dataset("AlexaAI/bold", split="train")
     metric = evaluate.load('regard', device='cuda')
 
-    male_prompts = bold_dataset.filter(lambda subset: subset['domain'] == 'gender' and subset['category'] == 'American_actors')
-    female_prompts = bold_dataset.filter(lambda subset: subset['domain'] == 'gender' and subset['category'] == 'American_actresses' )
+    male_prompts = bold_dataset.filter(
+        lambda subset: subset['domain'] == 'gender' and subset['category'] == 'American_actors')
+    female_prompts = bold_dataset.filter(
+        lambda subset: subset['domain'] == 'gender' and subset['category'] == 'American_actresses')
 
     male_prompts = [item['prompts'][0] for item in male_prompts]
     female_prompts = [item['prompts'][0] for item in female_prompts]
@@ -104,7 +97,7 @@ def bold_dataset_inference(text_generation):
     num_iterations_m = 0
 
     for i in tqdm(range(0, female_num_samples, text_generation._batch_size)):
-        batch_prompts = female_prompts[i:min(i+text_generation._batch_size, female_num_samples)]
+        batch_prompts = female_prompts[i:min(i + text_generation._batch_size, female_num_samples)]
         outputs = text_generation(batch_prompts)
 
         outputs = [output[0]["generated_text"] for output in outputs]
@@ -114,119 +107,76 @@ def bold_dataset_inference(text_generation):
         female_sum_other += scores['average_regard']['other']
         female_sum_neutral += scores['average_regard']['neutral']
         female_sum_negative += scores['average_regard']['negative']
-        
+
         num_iterations_f += 1
-       
+
     for i in tqdm(range(0, male_num_samples, text_generation._batch_size)):
-        batch_prompts = male_prompts[i:min(i+text_generation._batch_size, male_num_samples)]
+        batch_prompts = male_prompts[i:min(i + text_generation._batch_size, male_num_samples)]
         outputs = text_generation(batch_prompts)
 
         outputs = [output[0]["generated_text"] for output in outputs]
         scores = metric.compute(data=outputs, aggregation='average')
-        
+
         male_sum_positive += scores['average_regard']['positive']
         male_sum_other += scores['average_regard']['other']
         male_sum_neutral += scores['average_regard']['neutral']
         male_sum_negative += scores['average_regard']['negative']
-    
+
         num_iterations_m += 1
 
     final_scores = {
-        "male_average_scores":{
+        "male_average_scores": {
             "positive": male_sum_positive / num_iterations_m,
             "other": male_sum_other / num_iterations_m,
             "neutral": male_sum_neutral / num_iterations_m,
-            "negative": male_sum_negative / num_iterations_m 
+            "negative": male_sum_negative / num_iterations_m
         },
-        "female_average_scores":{
+        "female_average_scores": {
             "positive": female_sum_positive / num_iterations_f,
             "other": female_sum_other / num_iterations_f,
             "neutral": female_sum_neutral / num_iterations_f,
-            "negative": female_sum_negative / num_iterations_f 
+            "negative": female_sum_negative / num_iterations_f
         }
     }
-    
+
     return final_scores
-    
+
 
 def honest_dataset_inference(text_generation, tokenizer):
     honest_dataset = load_dataset("MilaNLProc/honest", 'en_binary', split='honest')
     metric = evaluate.load('honest', 'en')
-    
+
     # on the entier dataset
-    prompts = [(h['template_masked'].replace(' [M].',''), h['category']) for h in honest_dataset]
-    
+    prompts = [(h['template_masked'].replace(' [M].', ''), h['category']) for h in honest_dataset]
+
     # on a sampled subeset with equal ratio of male and female prompts
     # female_prompts = random.sample([(h['template_masked'].replace(' [M].',''), h['category']) for h in honest_dataset if h['category'].startswith('female')], 40)
     # male_prompts = random.sample([(h['template_masked'].replace(' [M].',''), h['category']) for h in honest_dataset if h['category'].startswith('male')], 40)
     # prompts = female_prompts + male_prompts
-   
-    #num of generations
+
+    # num of generations
     k = 1
     male_continuations = []
     female_continuations = []
-    
+
     for i, prompt in tqdm(enumerate(prompts)):
-        sample = prompt[0]      # take prompt text - 'template_masked'
-        
-        generation = text_generation(sample, max_length=len(tokenizer(sample)['input_ids'])+10, num_return_sequences=k, pad_token_id=50256)
-        continuation = generation[0]['generated_text'].replace(sample,'')
-        
+        sample = prompt[0]  # take prompt text - 'template_masked'
+
+        generation = text_generation(sample, max_length=len(tokenizer(sample)['input_ids']) + 10,
+                                     num_return_sequences=k, pad_token_id=50256)
+        continuation = generation[0]['generated_text'].replace(sample, '')
+
         # check 'category'
         if prompt[1].startswith('male'):
             male_continuations.append(continuation)
         elif prompt[1].startswith('female'):
             female_continuations.append(continuation)
-        
-        # if i == 79:
-        #     break
 
     female_continuations = [continuation.split() for continuation in female_continuations]
     male_continuations = [continuation.split() for continuation in male_continuations]
-    
+
     scores = {
         "male_avg_regard": metric.compute(predictions=male_continuations),
         "female_avg_regard": metric.compute(predictions=female_continuations)
     }
-
     return scores
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--model', choices=["gpt2", "gemma", "phi2"], required=True)
-    parser.add_argument('--dataset', choices=["toxicity", "wino_bias", "bold", "honest"], required=True)
-    
-    args = parser.parse_args()
-    
-    # Load model
-    text_generation, tokenizer = get_model(args.model)
-
-    # Inference
-    if args.dataset == "toxicity":
-        scores = toxicity_dataset_inference(text_generation)
-        metric = "toxicity"
-    elif args.dataset == "wino_bias":
-        scores = wino_bias_dataset_inference(text_generation)
-        metric = "toxicity"
-    elif args.dataset == "bold":
-        scores = bold_dataset_inference(text_generation)
-        metric = "regard"
-    elif args.dataset == "honest":
-        scores = honest_dataset_inference(text_generation, tokenizer)
-        metric = "honest"
-
-
-    result_dict = {
-        "model": args.model,
-        "dataset": args.dataset,
-        "metric": metric,
-        "scores": scores,
-    }
-
-    path = f"results/{metric}_{args.model}_{args.dataset}.json"
-    with open(path, 'w') as fp:
-        json.dump(result_dict, fp, indent=4)
-
-
-if __name__ == '__main__':
-    main()

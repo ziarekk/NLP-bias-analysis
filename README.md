@@ -11,7 +11,7 @@ We put the main emphasis on comparing their performance in terms of toxicity and
 
 ## Tech stack 
 - Python
-- Hugging Face API
+- HuggingFace API
 
 
 ## Authors
